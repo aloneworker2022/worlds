@@ -1,0 +1,42 @@
+{
+  "statusCode": 200,
+  "message": "Success",
+  "items": {
+    "data": [
+      {
+        "newsId": 6484021,
+        "title": "台積電（2330）法說會重點：2025年營收展望樂觀",
+        "summary": "台積電法說會指出AI需求強勁，2025年全年美元營收成長率預估接近中段20%",
+        "content": "<p>台積電昨日舉行法說會，董事長魏哲家表示...</p>",
+        "publishAt": 1748995200,
+        "coverSrc": {
+          "m": {"src": "https://cimg.cnyes.cool/prod/news/6484021/m/abc.jpg"},
+          "s": {"src": "https://cimg.cnyes.cool/prod/news/6484021/s/abc.jpg"}
+        },
+        "market": [
+          {"code": "2330", "name": "台積電", "exchange": "TWS"}
+        ],
+        "otherProduct": ["TWS:2330:STOCK:COMMON"],
+        "keyword": ["台積電", "法說會", "AI"],
+        "categoryId": "tw_stock"
+      },
+      {
+        "newsId": 6484022,
+        "title": "聯發科（2454）攜手輝達開發AI晶片",
+        "summary": "聯發科宣布與輝達合作，共同開發次世代AI邊緣運算晶片",
+        "content": "<p>聯發科技今日宣布...</p>",
+        "publishAt": 1748991600,
+        "coverSrc": {},
+        "market": [
+          {"code": "2454", "name": "聯發科", "exchange": "TWS"}
+        ],
+        "otherProduct": [],
+        "keyword": ["聯發科", "輝達", "AI晶片"],
+        "categoryId": "tw_stock"
+      }
+    ],
+    "total": 2,
+    "last_page": 1,
+    "current_page": 1
+  }
+}

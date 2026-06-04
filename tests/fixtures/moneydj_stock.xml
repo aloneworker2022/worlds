@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>MoneyDJ理財網 - 台股新聞</title>
+    <link>https://www.moneydj.com</link>
+    <description>MoneyDJ台股財經新聞</description>
+    <item>
+      <title>台積電 公告本公司115年5月合併營收</title>
+      <link>https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=abc123</link>
+      <guid>abc123</guid>
+      <pubDate>Wed, 04 Jun 2025 08:00:00 +0800</pubDate>
+    </item>
+    <item>
+      <title>聯電（2303）宣布庫藏股計畫</title>
+      <link>https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=def456</link>
+      <guid>def456</guid>
+      <pubDate>Wed, 04 Jun 2025 07:30:00 +0800</pubDate>
+    </item>
+  </channel>
+</rss>

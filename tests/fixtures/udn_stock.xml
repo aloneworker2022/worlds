@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>經濟日報 - 股市</title>
+    <link>https://money.udn.com</link>
+    <description>經濟日報股市新聞</description>
+    <item>
+      <title>台積電（2330）ADR創高 外資看好下半年</title>
+      <link>https://money.udn.com/money/story/5599/12345678</link>
+      <description>台積電美國存託憑證（ADR）昨日創歷史新高，外資機構紛紛上調目標價。</description>
+      <pubDate>Wed, 04 Jun 2025 10:00:00 +0800</pubDate>
+      <guid>https://money.udn.com/money/story/5599/12345678</guid>
+    </item>
+    <item>
+      <title>鴻海（2317）搶攻AI伺服器市場 Q3出貨預估翻倍</title>
+      <link>https://money.udn.com/money/story/5599/12345679</link>
+      <description>鴻海精密工業今日法說會表示，AI伺服器訂單能見度延伸至2025年底。</description>
+      <pubDate>Wed, 04 Jun 2025 09:30:00 +0800</pubDate>
+      <guid>https://money.udn.com/money/story/5599/12345679</guid>
+    </item>
+  </channel>
+</rss>

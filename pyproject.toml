@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tw-finance-news"
+version = "0.1.0"
+description = "台灣財經新聞爬蟲套件 - Scraper for Taiwan financial news"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+keywords = ["taiwan", "finance", "news", "scraper", "stock"]
+dependencies = [
+    "httpx[http2]>=0.27",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.0",
+    "pydantic>=2.6",
+    "python-dateutil>=2.9",
+    "tenacity>=8.2",
+    "typer>=0.12",
+    "rich>=13.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "respx>=0.21",
+]
+
+[project.scripts]
+tw-finance-news = "tw_finance_news.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tw_finance_news"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
