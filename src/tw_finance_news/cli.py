@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from typing import Optional
 
 import typer
@@ -10,6 +11,7 @@ from rich.table import Table
 
 from .aggregator import NewsAggregator
 from .models import NewsSource
+from .storage import CsvStorage, SqliteStorage
 
 app = typer.Typer(
     name="tw-finance-news",
@@ -28,6 +30,25 @@ def _parse_sources(sources: Optional[str]) -> list[NewsSource] | None:
         raise typer.BadParameter(f"無效的來源名稱: {e}") from e
 
 
+def _print_table(articles: list, title: str) -> None:
+    table = Table(title=title, show_lines=True, expand=True)
+    table.add_column("來源", style="cyan", width=12)
+    table.add_column("時間", style="green", width=16)
+    table.add_column("標題", ratio=3, overflow="fold")
+    table.add_column("股票", style="yellow", width=12)
+    table.add_column("連結", ratio=2, overflow="fold")
+
+    for article in articles:
+        table.add_row(
+            article.source.value,
+            article.published_at.strftime("%Y-%m-%d %H:%M"),
+            article.title,
+            ", ".join(article.stock_codes[:5]),
+            article.url,
+        )
+    console.print(table)
+
+
 @app.command("fetch")
 def fetch(
     stock: Optional[str] = typer.Option(None, "--stock", "-s", help="依股票代碼過濾，例如 2330"),
@@ -36,6 +57,7 @@ def fetch(
     ),
     pages: int = typer.Option(1, "--pages", "-p", help="每個來源抓取的頁數"),
     limit: int = typer.Option(20, "--limit", "-l", help="每個來源每頁的文章數"),
+    save: Optional[str] = typer.Option(None, "--save", help="儲存到檔案（.csv 或 .db/.sqlite）"),
     json_output: bool = typer.Option(False, "--json", "-j", help="以 JSON 格式輸出"),
 ):
     """抓取並顯示台灣財經新聞。"""
@@ -54,6 +76,20 @@ def fetch(
         console.print("[yellow]沒有找到符合條件的新聞。[/yellow]")
         raise typer.Exit(0)
 
+    if save:
+        path = Path(save)
+        suffix = path.suffix.lower()
+        if suffix == ".csv":
+            storage = CsvStorage(path)
+            added = storage.save(articles)
+            console.print(f"[green]已儲存到 {path}（新增 {added} 篇）[/green]")
+        elif suffix in (".db", ".sqlite", ".sqlite3"):
+            storage = SqliteStorage(path)
+            added = storage.save(articles)
+            console.print(f"[green]已儲存到 {path}（新增 {added} 篇，共 {storage.count()} 篇）[/green]")
+        else:
+            raise typer.BadParameter("儲存格式需為 .csv 或 .db / .sqlite", param_hint="--save")
+
     if json_output:
         console.print(
             json.dumps(
@@ -64,27 +100,51 @@ def fetch(
         )
         return
 
-    table = Table(
-        title=f"台灣財經新聞（共 {len(articles)} 篇）",
-        show_lines=True,
-        expand=True,
-    )
-    table.add_column("來源", style="cyan", width=12)
-    table.add_column("時間", style="green", width=16)
-    table.add_column("標題", ratio=3, overflow="fold")
-    table.add_column("股票", style="yellow", width=12)
-    table.add_column("連結", ratio=2, overflow="fold")
+    _print_table(articles, f"台灣財經新聞（共 {len(articles)} 篇）")
 
-    for article in articles:
-        table.add_row(
-            article.source.value,
-            article.published_at.strftime("%Y-%m-%d %H:%M"),
-            article.title,
-            ", ".join(article.stock_codes[:5]),
-            article.url,
+
+@app.command("query")
+def query(
+    db_path: str = typer.Argument(..., help="SQLite 資料庫路徑，例如 news.db"),
+    stock: Optional[str] = typer.Option(None, "--stock", "-s", help="依股票代碼過濾"),
+    source: Optional[str] = typer.Option(None, "--source", help="依來源過濾"),
+    days: Optional[int] = typer.Option(None, "--days", "-d", help="只顯示最近 N 天"),
+    json_output: bool = typer.Option(False, "--json", "-j", help="以 JSON 格式輸出"),
+):
+    """查詢已儲存在 SQLite 資料庫的新聞。"""
+    path = Path(db_path)
+    if not path.exists():
+        console.print(f"[red]找不到資料庫：{path}[/red]")
+        raise typer.Exit(1)
+
+    db = SqliteStorage(path)
+    articles = db.load(stock_code=stock, source=source, days=days)
+
+    if not articles:
+        console.print("[yellow]沒有符合條件的記錄。[/yellow]")
+        raise typer.Exit(0)
+
+    if json_output:
+        console.print(
+            json.dumps(
+                [a.model_dump(mode="json") for a in articles],
+                ensure_ascii=False,
+                indent=2,
+            )
         )
+        return
 
-    console.print(table)
+    filter_desc = []
+    if stock:
+        filter_desc.append(f"股票={stock}")
+    if source:
+        filter_desc.append(f"來源={source}")
+    if days:
+        filter_desc.append(f"最近{days}天")
+    title = f"查詢結果（{len(articles)} 篇）" + (f" [{', '.join(filter_desc)}]" if filter_desc else "")
+
+    _print_table(articles, title)
+    console.print(f"[dim]資料庫共 {db.count()} 篇[/dim]")
 
 
 @app.command("sources")

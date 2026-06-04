@@ -6,8 +6,9 @@ from .scrapers.moneydj import MoneyDJScraper
 from .scrapers.statementdog import StatementDogScraper
 from .scrapers.udn import UdnScraper
 from .scrapers.yahoo import YahooFinanceScraper
+from .storage import CsvStorage, SqliteStorage
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __all__ = [
     "NewsAggregator",
     "NewsArticle",
@@ -18,4 +19,6 @@ __all__ = [
     "MoneyDJScraper",
     "YahooFinanceScraper",
     "StatementDogScraper",
+    "CsvStorage",
+    "SqliteStorage",
 ]
