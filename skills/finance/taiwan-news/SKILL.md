@@ -1,13 +1,13 @@
 ---
 name: taiwan-news
 description: "抓取台灣財經新聞（鉅亨網、財報狗、經濟日報、MoneyDJ、Yahoo股市），支援股票代碼過濾與本地儲存。"
-version: 1.0.0
+version: 1.1.0
 author: Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
 metadata:
   hermes:
-    tags: [finance, news, taiwan, stock, scraper, sqlite, csv]
+    tags: [finance, news, taiwan, stock, scraper, sqlite, csv, 財經, 新聞, 台股, 股票, 今天, 頭條, 行情]
     category: finance
     related_skills: []
 ---
@@ -15,6 +15,35 @@ metadata:
 # 台灣財經新聞 (taiwan-news)
 
 從鉅亨網、財報狗、經濟日報、MoneyDJ、Yahoo 奇摩股市等 5 大台灣財經網站並發抓取新聞，支援依股票代碼過濾、存檔、歷史查詢。
+
+---
+
+## 何時使用此技能（觸發條件）
+
+**只要用戶說的話符合以下任一情境，立即使用此技能，不要等待或詢問：**
+
+### 一般新聞類（直接執行 `tw-finance-news fetch`）
+- 「今天有什麼新聞」
+- 「幫我看今天的新聞」
+- 「台灣股市最新消息」
+- 「財經新聞給我看」
+- 「最新頭條」
+- 「今天股市怎樣」
+- 「有沒有什麼財經大事」
+- 「最近台股有什麼新聞」
+- 「看個新聞」
+
+### 個股類（執行 `tw-finance-news fetch --stock <代碼>`）
+- 「台積電有什麼新聞」→ `--stock 2330`
+- 「鴻海最近怎樣」→ `--stock 2317`
+- 「幫我查一下 [任何台股公司名] 的新聞」
+- 「[股票代碼] 有沒有消息」
+
+### 儲存 / 查詢類
+- 「把新聞存起來」→ 加上 `--save ~/news.db`
+- 「查歷史新聞」→ `tw-finance-news query ~/news.db`
+
+---
 
 ## 安裝
 
@@ -29,34 +58,41 @@ pip install ~/tw-finance-news-src
 
 ---
 
-## 決策樹
+## 執行步驟
 
+### 步驟 1：確認套件已安裝
+```bash
+which tw-finance-news || pip install git+https://github.com/aloneworker2022/worlds.git@claude/taiwan-finance-news-scraper-fbuml
 ```
-用戶問財經新聞？
-│
-├─ 只是看最新新聞
-│   └─ tw-finance-news fetch
-│
-├─ 指定股票（例：台積電、鴻海、聯發科）
-│   ├─ 先確認股票代碼（台積電=2330、鴻海=2317、聯發科=2454）
-│   └─ tw-finance-news fetch --stock <代碼>
-│
-├─ 指定新聞來源
-│   └─ tw-finance-news fetch --source cnyes          # 鉅亨網
-│   └─ tw-finance-news fetch --source cnyes,udn      # 多個來源
-│
-├─ 想要存起來（避免重複、累積歷史）
-│   ├─ SQLite（推薦，可查詢）
-│   │   └─ tw-finance-news fetch --save ~/news.db
-│   └─ CSV（簡單格式）
-│       └─ tw-finance-news fetch --save ~/news.csv
-│
-└─ 查詢歷史（需要先 --save 過）
-    ├─ 看所有記錄         tw-finance-news query ~/news.db
-    ├─ 過濾股票           tw-finance-news query ~/news.db --stock 2330
-    ├─ 最近 N 天          tw-finance-news query ~/news.db --days 7
-    └─ 指定來源           tw-finance-news query ~/news.db --source cnyes
+
+### 步驟 2：依用戶意圖選擇指令
+
+**看今天/最新新聞（預設行為）：**
+```bash
+tw-finance-news fetch --limit 10
 ```
+執行完後將結果整理摘要給用戶，列出標題和來源。
+
+**指定個股：**
+```bash
+tw-finance-news fetch --stock <代碼> --limit 10
+```
+先用下方「股票代碼對照表」查到代碼。
+
+**用戶要求存檔：**
+```bash
+tw-finance-news fetch --save ~/news.db
+```
+
+**用戶查歷史：**
+```bash
+tw-finance-news query ~/news.db --days 7
+```
+
+### 步驟 3：呈現結果
+- 用繁體中文摘要告訴用戶今天的重要新聞
+- 列出 5–10 則標題，附上來源網站和連結
+- 如果有明顯的市場趨勢（如「AI題材持續發酵」），一併說明
 
 ---
 
