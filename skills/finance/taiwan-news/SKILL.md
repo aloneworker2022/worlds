@@ -1,7 +1,7 @@
 ---
 name: taiwan-news
 description: "抓取台灣財經新聞（鉅亨網、財報狗、經濟日報、MoneyDJ、Yahoo股市），支援股票代碼過濾與本地儲存。"
-version: 1.2.0
+version: 1.3.0
 author: Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -15,6 +15,8 @@ metadata:
 # 台灣財經新聞 (taiwan-news)
 
 從鉅亨網、財報狗、經濟日報、MoneyDJ、Yahoo 奇摩股市等 5 大台灣財經網站並發抓取新聞，支援依股票代碼過濾、存檔、歷史查詢。
+
+套件已由使用者預先安裝，**直接執行指令即可，不需要安裝或檢查**。
 
 ---
 
@@ -45,20 +47,11 @@ metadata:
 
 ---
 
-## 安裝
+## 呼叫方式
 
-```bash
-pip install "git+https://github.com/aloneworker2022/worlds.git@claude/taiwan-finance-news-scraper-fbuml"
-```
+**永遠使用 `python -m` 模式，不要用 `tw-finance-news` 指令名稱。**
 
----
-
-## 呼叫方式（重要：避免 PATH 問題）
-
-**永遠優先使用 `python -m` 模式，不要用 `tw-finance-news` 指令名稱，**
-因為 Agent 的 shell session 可能未載入 `~/.local/bin`，導致 `command not found`。
-
-| 不穩定（可能報錯） | 穩定（推薦） |
+| ❌ 不穩定 | ✅ 正確用法 |
 |---|---|
 | `tw-finance-news fetch` | `python -m tw_finance_news fetch` |
 | `tw-finance-news query` | `python -m tw_finance_news query` |
@@ -68,19 +61,14 @@ pip install "git+https://github.com/aloneworker2022/worlds.git@claude/taiwan-fin
 
 ## 執行步驟
 
-### 步驟 1：確認套件已安裝
-```bash
-python -m tw_finance_news --help 2>/dev/null || pip install "git+https://github.com/aloneworker2022/worlds.git@claude/taiwan-finance-news-scraper-fbuml"
-```
-
-### 步驟 2：依用戶意圖執行指令
+### 步驟 1：依用戶意圖選擇指令
 
 **看今天 / 最新新聞：**
 ```bash
 python -m tw_finance_news fetch --limit 10
 ```
 
-**指定個股（先查股票代碼對照表）：**
+**指定個股（先查下方股票代碼對照表）：**
 ```bash
 python -m tw_finance_news fetch --stock 2330 --limit 10
 ```
@@ -101,12 +89,12 @@ python -m tw_finance_news query ~/news.db --days 7
 python -m tw_finance_news query ~/news.db --stock 2330
 ```
 
-**JSON 輸出（供程式處理）：**
+**JSON 輸出：**
 ```bash
 python -m tw_finance_news fetch --json
 ```
 
-### 步驟 3：呈現結果
+### 步驟 2：呈現結果
 - 用繁體中文摘要告訴用戶今天的重要新聞
 - 列出 5–10 則標題，附上來源和連結
 - 如有明顯市場趨勢（如「AI 題材持續發酵」），一併點出
@@ -139,25 +127,6 @@ python -m tw_finance_news fetch --json
 | 3008 | 大立光 |
 | 6505 | 台塑化 |
 | 2002 | 中鋼 |
-
----
-
-## Python API（進階用法）
-
-```python
-from tw_finance_news import NewsAggregator, NewsSource, SqliteStorage
-
-# 抓所有來源
-articles = NewsAggregator().get_news()
-
-# 個股過濾
-articles = NewsAggregator().get_news(stock_code="2330")
-
-# 儲存
-db = SqliteStorage("~/news.db")
-db.save(articles)
-recent = db.load(stock_code="2330", days=7)
-```
 
 ---
 
