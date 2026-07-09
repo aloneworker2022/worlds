@@ -1,20 +1,20 @@
 ---
 name: taiwan-news
-description: "抓取台灣財經新聞（鉅亨網、財報狗、經濟日報、MoneyDJ、Yahoo股市），支援股票代碼過濾與本地儲存。"
-version: 1.3.0
+description: "抓取台灣財經新聞（鉅亨網、財報狗、經濟日報、MoneyDJ、Yahoo股市），支援依日期查詢、股票代碼過濾與本地儲存。"
+version: 1.4.0
 author: Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
 metadata:
   hermes:
-    tags: [finance, news, taiwan, stock, scraper, sqlite, csv, 財經, 新聞, 台股, 股票, 今天, 頭條, 行情]
+    tags: [finance, news, taiwan, stock, scraper, sqlite, csv, 財經, 新聞, 台股, 股票, 今天, 昨天, 日期, 歷史, 頭條, 行情]
     category: finance
     related_skills: []
 ---
 
 # 台灣財經新聞 (taiwan-news)
 
-從鉅亨網、財報狗、經濟日報、MoneyDJ、Yahoo 奇摩股市等 5 大台灣財經網站並發抓取新聞，支援依股票代碼過濾、存檔、歷史查詢。
+從鉅亨網、財報狗、經濟日報、MoneyDJ、Yahoo 奇摩股市等 5 大台灣財經網站並發抓取新聞，支援依日期抓取當天新聞、依股票代碼過濾、存檔、歷史查詢。
 
 套件已由使用者預先安裝，**直接執行指令即可，不需要安裝或檢查**。
 
@@ -34,6 +34,12 @@ metadata:
 - 「有沒有什麼財經大事」
 - 「最近台股有什麼新聞」
 - 「看個新聞」
+
+### 日期類
+- 「今天有什麼新聞」→ `--date today`
+- 「昨天股市發生什麼事」→ `--date yesterday`
+- 「幫我看 7 月 8 號的新聞」→ `--date 2026-07-08`
+- 「上週三的台股新聞」→ 換算成日期後 `--date YYYY-MM-DD --source cnyes --pages 3`
 
 ### 個股類
 - 「台積電有什麼新聞」→ `--stock 2330`
@@ -65,12 +71,23 @@ metadata:
 
 **看今天 / 最新新聞：**
 ```bash
-python -m tw_finance_news fetch --limit 10
+python -m tw_finance_news fetch --date today --limit 20
+```
+
+**指定日期（台灣時間，格式 YYYY-MM-DD，也接受 today / yesterday / 今天 / 昨天）：**
+```bash
+python -m tw_finance_news fetch --date 2026-07-08 --limit 20
+```
+
+**歷史日期（超過 1–2 天前）：只有鉅亨網支援伺服器端日期查詢，務必這樣下：**
+```bash
+python -m tw_finance_news fetch --date 2026-06-15 --source cnyes --pages 3 --limit 30
 ```
 
 **指定個股（先查下方股票代碼對照表）：**
 ```bash
 python -m tw_finance_news fetch --stock 2330 --limit 10
+python -m tw_finance_news fetch --stock 2330 --date today
 ```
 
 **指定來源：**
@@ -133,5 +150,8 @@ python -m tw_finance_news fetch --json
 ## 注意事項
 
 - 工商時報 (ctee.com.tw) 被 Cloudflare 封鎖，不支援
-- RSS 來源（udn/moneydj/yahoo）每次最多 20–50 篇，不支援分頁
+- RSS 來源（udn/moneydj/yahoo）每次最多 20–50 篇，不支援分頁，也翻不到歷史新聞
+- `--date` 一律以台灣時間（UTC+8）為準；歷史日期只有鉅亨網 (`cnyes`) 有資料
+- `--date` 查無結果時，改用 `--source cnyes --pages 3 --limit 30` 重試一次再回報
 - 執行頻率建議不超過每 5 分鐘一次
+- 需要 tw-finance-news v0.3.0 以上才有 `--date`（舊版沒有此選項）
