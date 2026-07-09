@@ -85,11 +85,15 @@ articles = asyncio.run(main())
 
 ## Agent Skills
 
-repo 內附兩個 agent skill，說明如何在 AI agent 中使用本套件：
+repo 內附兩個 agent skill，依 agent 分資料夾，說明如何在 AI agent 中使用本套件：
 
-- `skills/openclaw/tw-stock-news/` — 給 [OpenClaw](https://openclaw.ai) 🦞 用，
+- `skills/hermes/taiwan-news/` — 給 **Hermes Agent** 用，
+  複製整個 `taiwan-news` 資料夾到 Hermes 載入技能的目錄即可啟用
+- `skills/openclaw/tw-stock-news/` — 給 **OpenClaw** 🦞 用，
   複製整個資料夾到 `~/.openclaw/skills/` 即可啟用
-- `skills/finance/taiwan-news/` — 給 Hermes Agent 用
+
+兩份內容等價（都含日期查詢、個股過濾、存檔功能），只是格式配合各自的 agent，
+請依你使用的 agent 挑對應的那份，不要混用。
 
 ## 資料模型
 
