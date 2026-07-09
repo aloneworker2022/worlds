@@ -24,6 +24,10 @@ for article in articles[:5]:
 # 依股票代碼過濾（台積電 2330）
 articles = agg.get_news(stock_code="2330")
 
+# 依日期抓取（台灣時間的一整天）
+import datetime
+articles = agg.get_news(date=datetime.date(2026, 7, 8))
+
 # 只使用特定來源
 agg = NewsAggregator(sources=[NewsSource.CNYES, NewsSource.UDN])
 articles = agg.get_news()
@@ -48,6 +52,13 @@ tw-finance-news fetch
 # 依股票代碼過濾
 tw-finance-news fetch --stock 2330
 
+# 依日期抓取（台灣時間），也接受 today / yesterday
+tw-finance-news fetch --date today
+tw-finance-news fetch --date 2026-07-08
+
+# 歷史日期只有鉅亨網支援伺服器端查詢，建議搭配多頁
+tw-finance-news fetch --date 2026-06-15 --source cnyes --pages 3 --limit 30
+
 # 指定來源
 tw-finance-news fetch --source cnyes,udn
 
@@ -71,6 +82,14 @@ async def main():
 
 articles = asyncio.run(main())
 ```
+
+## Agent Skills
+
+repo 內附兩個 agent skill，說明如何在 AI agent 中使用本套件：
+
+- `skills/openclaw/tw-stock-news/` — 給 [OpenClaw](https://openclaw.ai) 🦞 用，
+  複製整個資料夾到 `~/.openclaw/skills/` 即可啟用
+- `skills/finance/taiwan-news/` — 給 Hermes Agent 用
 
 ## 資料模型
 

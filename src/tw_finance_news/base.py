@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from abc import ABC, abstractmethod
+from datetime import datetime
 
 import httpx
 from tenacity import (
@@ -65,6 +66,8 @@ class BaseScraper(ABC):
         stock_code: str | None = None,
         category: str | None = None,
         limit: int = 20,
+        start_at: datetime | None = None,
+        end_at: datetime | None = None,
     ) -> ScrapeResult: ...
 
     async def get_news_async(
@@ -73,18 +76,32 @@ class BaseScraper(ABC):
         stock_code: str | None = None,
         category: str | None = None,
         limit: int = 20,
+        start_at: datetime | None = None,
+        end_at: datetime | None = None,
     ) -> list[NewsArticle]:
+        """抓取新聞。start_at / end_at 需為 timezone-aware datetime，
+        不支援伺服器端日期查詢的來源會在此以 published_at 過濾。"""
         all_articles: list[NewsArticle] = []
         async with self:
             for page in range(1, pages + 1):
                 result = await self._fetch_page(
-                    page, stock_code=stock_code, category=category, limit=limit
+                    page,
+                    stock_code=stock_code,
+                    category=category,
+                    limit=limit,
+                    start_at=start_at,
+                    end_at=end_at,
                 )
                 all_articles.extend(result.articles)
                 if not result.has_more:
                     break
                 if page < pages:
                     await asyncio.sleep(self._delay_seconds)
+
+        if start_at is not None:
+            all_articles = [a for a in all_articles if a.published_at >= start_at]
+        if end_at is not None:
+            all_articles = [a for a in all_articles if a.published_at <= end_at]
         return all_articles
 
     def get_news(
@@ -93,6 +110,8 @@ class BaseScraper(ABC):
         stock_code: str | None = None,
         category: str | None = None,
         limit: int = 20,
+        start_at: datetime | None = None,
+        end_at: datetime | None = None,
     ) -> list[NewsArticle]:
         """Synchronous wrapper around get_news_async."""
         return asyncio.run(
@@ -101,5 +120,7 @@ class BaseScraper(ABC):
                 stock_code=stock_code,
                 category=category,
                 limit=limit,
+                start_at=start_at,
+                end_at=end_at,
             )
         )

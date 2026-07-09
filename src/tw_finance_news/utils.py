@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import html
 import re
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
+
+# 台灣無日光節約時間，固定 UTC+8
+TAIPEI_TZ = timezone(timedelta(hours=8), name="Asia/Taipei")
 
 # Matches: （2330）、(2330)、（2330-TW）、2330-TW、TWS:2330:STOCK
 _STOCK_CODE_RE = re.compile(
@@ -32,3 +35,10 @@ def clean_html(raw: str) -> str:
 def unix_to_datetime(ts: int) -> datetime:
     """Convert Unix timestamp to UTC-aware datetime."""
     return datetime.fromtimestamp(ts, tz=timezone.utc)
+
+
+def taipei_day_range(day: date) -> tuple[datetime, datetime]:
+    """回傳台灣時間某一天的起訖時刻（含兩端，UTC-aware）。"""
+    start = datetime(day.year, day.month, day.day, tzinfo=TAIPEI_TZ)
+    end = start + timedelta(days=1) - timedelta(seconds=1)
+    return start, end

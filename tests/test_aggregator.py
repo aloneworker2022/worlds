@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -91,6 +91,43 @@ async def test_aggregator_tolerates_source_failure():
 
     assert len(results) == 1
     assert results[0].article_id == "udn:1"
+
+
+@pytest.mark.asyncio
+async def test_aggregator_date_passes_taipei_range_to_scrapers():
+    mock_classes = {
+        src: make_mock_scraper_class(src, []) for src in NewsSource
+    }
+
+    with patch.dict("tw_finance_news.aggregator._SCRAPER_CLASSES", mock_classes):
+        agg = NewsAggregator()
+        await agg.get_news_async(date=date(2025, 6, 4))
+
+    for src, cls in mock_classes.items():
+        kwargs = cls.return_value.get_news_async.call_args.kwargs
+        start_at, end_at = kwargs["start_at"], kwargs["end_at"]
+        assert start_at.astimezone(timezone.utc) == datetime(
+            2025, 6, 3, 16, 0, 0, tzinfo=timezone.utc
+        )
+        assert end_at.astimezone(timezone.utc) == datetime(
+            2025, 6, 4, 15, 59, 59, tzinfo=timezone.utc
+        )
+
+
+@pytest.mark.asyncio
+async def test_aggregator_no_date_passes_none():
+    mock_classes = {
+        src: make_mock_scraper_class(src, []) for src in NewsSource
+    }
+
+    with patch.dict("tw_finance_news.aggregator._SCRAPER_CLASSES", mock_classes):
+        agg = NewsAggregator()
+        await agg.get_news_async()
+
+    for cls in mock_classes.values():
+        kwargs = cls.return_value.get_news_async.call_args.kwargs
+        assert kwargs["start_at"] is None
+        assert kwargs["end_at"] is None
 
 
 @pytest.mark.asyncio

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import datetime as dt
 import logging
 
 from .models import NewsArticle, NewsCategory, NewsSource
@@ -9,6 +10,7 @@ from .scrapers.moneydj import MoneyDJScraper
 from .scrapers.statementdog import StatementDogScraper
 from .scrapers.udn import UdnScraper
 from .scrapers.yahoo import YahooFinanceScraper
+from .utils import taipei_day_range
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +35,9 @@ class NewsAggregator:
         # 非同步
         articles = await NewsAggregator().get_news_async(stock_code="2330")
 
+        # 指定日期（台灣時間的一整天）
+        articles = NewsAggregator().get_news(date=datetime.date(2026, 7, 8))
+
         # 指定來源
         agg = NewsAggregator(sources=[NewsSource.CNYES, NewsSource.UDN])
         articles = agg.get_news()
@@ -53,8 +58,18 @@ class NewsAggregator:
         pages: int = 1,
         limit_per_source: int = 20,
         deduplicate: bool = True,
+        date: dt.date | None = None,
     ) -> list[NewsArticle]:
-        """並發抓取所有來源，合併後依時間排序。"""
+        """並發抓取所有來源，合併後依時間排序。
+
+        date 指定台灣時間的某一天；鉅亨網走 API 的 startAt/endAt，
+        其餘來源只提供最新新聞，會以 published_at 過濾，
+        因此非近日的歷史日期通常只有鉅亨網有結果。
+        """
+        start_at = end_at = None
+        if date is not None:
+            start_at, end_at = taipei_day_range(date)
+
         tasks = []
         for src in self._sources:
             cls = _SCRAPER_CLASSES[src]
@@ -65,6 +80,8 @@ class NewsAggregator:
                     stock_code=stock_code,
                     category=category.value if category else None,
                     limit=limit_per_source,
+                    start_at=start_at,
+                    end_at=end_at,
                 )
             )
 
@@ -96,6 +113,7 @@ class NewsAggregator:
         pages: int = 1,
         limit_per_source: int = 20,
         deduplicate: bool = True,
+        date: dt.date | None = None,
     ) -> list[NewsArticle]:
         """同步版本的 get_news_async。"""
         return asyncio.run(
@@ -105,5 +123,6 @@ class NewsAggregator:
                 pages=pages,
                 limit_per_source=limit_per_source,
                 deduplicate=deduplicate,
+                date=date,
             )
         )

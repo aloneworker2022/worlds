@@ -33,6 +33,8 @@ class StatementDogScraper(BaseScraper):
         stock_code: str | None = None,
         category: str | None = None,
         limit: int = 20,
+        start_at: datetime | None = None,
+        end_at: datetime | None = None,
     ) -> ScrapeResult:
         if page > 2:
             return ScrapeResult(articles=[], source=self.source, has_more=False)
